@@ -16,6 +16,30 @@ const CustomerList = () => {
 
     console.log(orders.length);
 
+
+    // search function
+    const searchItems = (searchValue) => {
+        // setSearchUser(searchValue)
+        console.log(searchValue);
+
+        //capitalize first letter
+        const modifiedSearchResult = searchValue.charAt(0).toUpperCase() + searchValue.slice(1);
+        console.log(modifiedSearchResult);
+
+        const userResults = orders.filter(resultOrder => resultOrder.customer.includes(modifiedSearchResult));
+
+        // setSearchUser(userResults);
+
+        setOrders(userResults);
+
+        // if empty then show all results
+        if (searchValue == '') {
+            fetch('https://my-json-server.typicode.com/Ved-X/assignment/orders')
+                .then(res => res.json())
+                .then(data => setOrders(data))
+        }
+    }
+
     // function for show status
     const statusView = (OrderStatus) => {
         if (OrderStatus == 'Delivered') {
@@ -55,7 +79,13 @@ const CustomerList = () => {
             <div className='container d-flex justify-content-between my-3'>
                 <form className='d-flex h-75'>
                     <button type="submit" className='border-0 text-dark bg-white'><BsSearch /></button>
-                    <input className='form-control px-4 text-center' type="search" name="search user" id="" placeholder='search by user' />
+                    <input
+                        className='form-control px-4 text-center'
+                        type="search"
+                        name="search user"
+                        id=""
+                        placeholder='search by user'
+                        onChange={(e) => searchItems(e.target.value)} />
                 </form>
 
 
@@ -75,6 +105,7 @@ const CustomerList = () => {
                 </Dropdown>
             </div>
 
+            {/* table section */}
             <div className='mt-3'>
                 <Table hover variant="">
                     <thead className='bg-info text-dark'>
