@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Dropdown, DropdownButton, Table } from 'react-bootstrap';
+import React, { Fragment, useEffect, useState } from 'react';
+import { Button, Dropdown, Table } from 'react-bootstrap';
 import { BsFilterLeft } from "react-icons/bs";
 import { BsSearch } from "react-icons/bs";
 import './CustomerList.css';
 
 const CustomerList = () => {
     const [orders, setOrders] = useState([]);
+    const [status, setStatus] = useState(['All', 'Completed', 'Delivered', 'Prepared'])
+    const [selectedStatus, setSelectedStatus] = useState('All');
 
     useEffect(() => {
         fetch('https://my-json-server.typicode.com/Ved-X/assignment/orders')
@@ -15,7 +17,6 @@ const CustomerList = () => {
 
 
     console.log(orders.length);
-
 
     // search function
     const searchItems = (searchValue) => {
@@ -33,26 +34,40 @@ const CustomerList = () => {
         setOrders(userResults);
 
         // if empty then show all results
-        if (searchValue == '') {
+        if (searchValue === '') {
             fetch('https://my-json-server.typicode.com/Ved-X/assignment/orders')
                 .then(res => res.json())
                 .then(data => setOrders(data))
         }
     }
 
+
+    // Filter By Status
+    const filterIcon = <BsFilterLeft />
+    const handleChange = e => {
+        setSelectedStatus(e.target.value)
+    }
+
+    let filteredResults = orders;
+    if (selectedStatus !== 'All') {
+        filteredResults = orders.filter(singleOrder => singleOrder.status === selectedStatus);
+    }
+
+
+
     // function for show status
     const statusView = (OrderStatus) => {
-        if (OrderStatus == 'Delivered') {
+        if (OrderStatus === 'Delivered') {
             return (
                 <Button disabled variant="primary" className='mx-auto px-3 rounded-pill'>{OrderStatus}</Button>
             )
         }
-        else if (OrderStatus == 'Prepared') {
+        else if (OrderStatus === 'Prepared') {
             return (
                 <Button disabled variant="warning" className='mx-auto px-3 rounded-pill'>{OrderStatus}</Button>
             )
         }
-        else if (OrderStatus == 'Completed') {
+        else if (OrderStatus === 'Completed') {
             return (
                 <Button disabled variant="success" className='mx-auto px-3 rounded-pill'>{OrderStatus}</Button>
             )
@@ -71,7 +86,7 @@ const CustomerList = () => {
             <div className='d-flex justify-content-between'>
                 <h5 className='text-start ms-3 text-bold'>All Orders {orders.length}</h5>
 
-                <h5 className='text-end me-3 text-bold'>Showing 20 of 20 results</h5>
+                <h5 className='text-end me-3 text-bold'>Showing {orders.length} of {orders.length} results</h5>
             </div>
             <hr className='m-2' />
 
@@ -88,21 +103,31 @@ const CustomerList = () => {
                         onChange={(e) => searchItems(e.target.value)} />
                 </form>
 
+                <select
+                    className='rounded-pill px-4'
+                    onChange={e => handleChange(e)}
 
+                >
+                    {/* <option value="value" selected>Filter By</option> */}
+                    {status.map(selectedOrder =>
+                        <option key={selectedOrder} value={selectedOrder}>{selectedOrder}</option>
+                    )}
+                </select>
+
+
+                {/* 
                 <Dropdown >
                     <Dropdown.Toggle className='rounded-pill px-4' id="dropdown-button-dark-example1" variant="outline-dark">
                         <BsFilterLeft ></BsFilterLeft> Filter By
                     </Dropdown.Toggle>
 
-                    <Dropdown.Menu variant="">
-                        <Dropdown.Item href="#/action-1" >
-                            By Completed
-                        </Dropdown.Item>
-                        <Dropdown.Item href="#/action-2">By Delivered</Dropdown.Item>
-                        <Dropdown.Item href="#/action-3">By Prepared</Dropdown.Item>
-
+                    <Dropdown.Menu variant="" >
+                        {
+                            status.map(singleStatus => <Dropdown.Item key={singleStatus} value={singleStatus}>{singleStatus}</Dropdown.Item>)
+                        }
                     </Dropdown.Menu>
-                </Dropdown>
+                </Dropdown> */}
+
             </div>
 
             {/* table section */}
@@ -121,7 +146,7 @@ const CustomerList = () => {
 
                     <tbody>
                         {
-                            orders.map(order => <tr>
+                            filteredResults.map(order => <tr>
                                 <td>#{order.order_id}</td>
                                 <td>{order.customer}</td>
                                 <td>
